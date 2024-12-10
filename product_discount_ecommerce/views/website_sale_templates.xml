@@ -1,0 +1,74 @@
+<odoo>
+    <template id="product_template_discount_inherit" inherit_id="website_sale.products_item">
+        <xpath expr="//span[@t-if=&quot;template_price_vals['price_reduce'] or not website.prevent_zero_price_sale&quot;]"
+               position="replace">
+            <span t-if="product.discount_percentage > 0">
+                <span class="text-danger">
+                    <span itemprop="price" t-esc="product.discounted_price"
+                          t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                </span>
+                <span class="text-muted" style="text-decoration: line-through;">
+                    <span t-esc="product.list_price"/>
+                </span>
+            </span>
+            <span t-if="product.discount_percentage == 0" itemprop="price" t-esc="product.list_price"
+                  t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+        </xpath>
+    </template>
+
+    <template id="product_price_inherit" inherit_id="website_sale.product_price">
+        <xpath expr="//span[@t-esc=&quot;combination_info['price']&quot;]" position="replace">
+            <span t-if="product.discount_percentage > 0">
+                <span class="text-danger" t-esc="product.discounted_price"
+                      t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                <span class="text-muted" style="text-decoration: line-through;" t-esc="product.list_price"/>
+            </span>
+            <span t-if="product.discount_percentage == 0" t-esc="product.list_price"
+                  t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+        </xpath>
+    </template>
+
+    <template id="cart_line_discount_inherit" inherit_id="website_sale.cart_lines">
+        <xpath expr="//td[@name='price']" position="replace">
+            <td>
+                <span t-if="line.product_id.discount_percentage > 0">
+                    <span class="text-danger" t-esc="line.product_id.discounted_price"/>
+                    <span class="text-muted" style="text-decoration: line-through;" t-esc="line.product_id.list_price"/>
+                </span>
+                <span t-if="line.product_id.discount_percentage == 0" t-esc="line.product_id.list_price"/>
+            </td>
+        </xpath>
+    </template>
+
+    <template id="total_inherit_website_sale" inherit_id="website_sale.total">
+        <xpath expr="//tr[@id='order_total_untaxed']" position="replace">
+            <tr id="order_total_untaxed">
+                <td class="text-end border-0">Subtotal:</td>
+                <td class="text-xl-end border-0">
+                    <span t-if="website_sale_order">
+                        <span class="text-danger"
+                              t-esc="sum(website_sale_order.order_line.product_id.mapped('discounted_price'))"/>
+                        <span class="text-muted" style="text-decoration: line-through;"
+                              t-esc="sum(website_sale_order.order_line.product_id.mapped('list_price'))"/>
+                    </span>
+                </td>
+            </tr>
+        </xpath>
+        <xpath expr="//tr[@id='order_total']" position="replace">
+            <tr id="order_total">
+                <td class="text-end border-top border-bottom-0">
+                    <strong>Total:</strong>
+                </td>
+                <td class="text-xl-end border-top border-bottom-0">
+                    <span t-if="website_sale_order">
+                        <span class="text-danger"
+                              t-esc="sum(website_sale_order.order_line.product_id.mapped('discounted_price'))"/>
+                        <span class="text-muted" style="text-decoration: line-through;"
+                              t-esc="sum(website_sale_order.order_line.product_id.mapped('list_price'))"/>
+                    </span>
+                </td>
+            </tr>
+        </xpath>
+    </template>
+
+</odoo>
